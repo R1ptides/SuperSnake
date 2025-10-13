@@ -6,6 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-j-8.3.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx.base.jar"/>
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx.controls.jar"/>
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx.fxml.jar"/>
@@ -14,6 +15,5 @@
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx.swing.jar"/>
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx.web.jar"/>
 	<classpathentry kind="lib" path="C:/Users/flyin/Downloads/openjfx-21.0.8_windows-x64_bin-sdk/javafx-sdk-21.0.8/lib/javafx-swt.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-j-8.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
