@@ -11,15 +11,14 @@ import javafx.stage.Stage;
 
 public class Snake extends Application {
 
-    // Snake position
-    private double snakeX = 400;
-    private double snakeY = 300;
+    // Snake head as an object
+    private SnakeSegment head;
 
     // Mouse position
     private double mouseX = 400;
     private double mouseY = 300;
 
-    // Movement speed (pixels per frame, might be able to be adjusted in the future via difficulty options)
+    // Movement speed (pixels per frame, might be adjustable later)
     private double speed = 3.0;
 
     @Override
@@ -27,19 +26,24 @@ public class Snake extends Application {
         Canvas canvas = new Canvas(800, 600);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
+        // Create the snake head at the center
+        head = new SnakeSegment(400, 300, 20);
+
         Group root = new Group();
         root.getChildren().add(canvas);
         Scene scene = new Scene(root, 800, 600, Color.BLACK);
 
-        scene.setOnMouseMoved(e ->
-            {mouseX = e.getX();
-            mouseY = e.getY();});
+        // Track mouse position
+        scene.setOnMouseMoved(e -> {
+            mouseX = e.getX();
+            mouseY = e.getY();
+        });
 
         stage.setTitle("Super Snake");
         stage.setScene(scene);
         stage.show();
 
-        // Game loop (runs ~60 times per second, which is 60 fps if your hardware allows it)
+        // Game loop (~60 fps)
         new AnimationTimer() {
             public void handle(long now) {
                 update();
@@ -49,25 +53,24 @@ public class Snake extends Application {
     }
 
     private void update() {
-        double dx = mouseX - snakeX;
-        double dy = mouseY - snakeY;
-
+        double dx = mouseX - head.getX();
+        double dy = mouseY - head.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Move towards the mouse if it's not already at the position of the mouse
+        // Move towards the mouse
         if (distance > 1) {
-            snakeX += (dx / distance) * speed;
-            snakeY += (dy / distance) * speed;
+            head.setX(head.getX() + (dx / distance) * speed);
+            head.setY(head.getY() + (dy / distance) * speed);
         }
     }
 
-    // Draw snake
     private void draw(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);    // background color, subject to change 
+        // Background
+        gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, 800, 600);
 
-        gc.setFill(Color.LIMEGREEN);
-        gc.fillOval(snakeX - 10, snakeY - 10, 20, 20); // snake head, subject to change
+        // Draw the snake head 
+        head.draw(gc);
     }
 
     public static void main(String[] args) {
