@@ -14,15 +14,15 @@ public class SnakeSegment {
         this.size = size;
     }
 
-    // Mr. Wonderful's famous setters and getters
+    // getters and setters
     public double getX() { return x; }
     public double getY() { return y; }
     public void setX(double x) { this.x = x; }
     public void setY(double y) { this.y = y; }
 
-    // Draw segment
+    // controls the color and size of the snake's segments
     public void draw(GraphicsContext gc) {
         gc.setFill(Color.LIMEGREEN);
-        gc.fillOval(x - size / 2, y - size / 2, size, size);
+        gc.fillOval(x - size / 2, y - size / 2, size, size); 
     }
 }
