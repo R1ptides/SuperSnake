@@ -24,6 +24,9 @@ public class Snake extends Application {
     private Food food;
     private int score = 0;
     
+    private long startTime; 
+    private String timeDisplay = "00:00";
+    
     // private long lastGrowTime = 0; // TEMPORARY - controls how often the snake grows
 
     @Override
@@ -47,12 +50,15 @@ public class Snake extends Application {
         stage.setTitle("Super Snake");
         stage.setScene(scene);
         stage.show();
+        
+        startTime = System.currentTimeMillis();
 
         new AnimationTimer() {
             public void handle(long now) {
                 if (!gameOver) {
-                    // update(now); // OLD: included timed growth, now replaced with update() below
+                    //update(now); // OLD: included timed growth, now replaced with update() below
                     update();
+                    updateTimer();
                     checkFoodCollision();
                     checkCollisions();
                 }
@@ -61,6 +67,16 @@ public class Snake extends Application {
         }.start();
     }
 
+    private void updateTimer() {
+        long elapsedMillis = System.currentTimeMillis() - startTime;
+        int totalSeconds = (int) (elapsedMillis / 1000);
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        timeDisplay = String.format("%02d:%02d", minutes, seconds);
+    }
+    
+        
+        
     // OLD VERSION (kept for reference):
     /*
     private void update(long now) {
@@ -88,7 +104,7 @@ public class Snake extends Application {
             //pythagorean theorem to calculate the trajectory of the snake based on the mouse's position
             double segmentDist = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
             
-            if (segmentDist > SEGMENT_DISTANCE) {
+            if (segmentDist > SEGMENT_DISTANCE) {   //checks and ensures that the segments don't disconnect or deviate
                 double moveX = (px - cx) / segmentDist * (segmentDist - SEGMENT_DISTANCE);
                 double moveY = (py - cy) / segmentDist * (segmentDist - SEGMENT_DISTANCE);
                 curr.setX(cx + moveX);
@@ -129,7 +145,7 @@ public class Snake extends Application {
             //pythagorean theorem to calculate the trajectory of the snake based on the mouse's position
             double segmentDist = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
             
-            if (segmentDist > SEGMENT_DISTANCE) {
+            if (segmentDist > SEGMENT_DISTANCE) {   //checks and ensures that the segments don't disconnect or deviate
                 double moveX = (px - cx) / segmentDist * (segmentDist - SEGMENT_DISTANCE);
                 double moveY = (py - cy) / segmentDist * (segmentDist - SEGMENT_DISTANCE);
                 curr.setX(cx + moveX);
@@ -192,6 +208,8 @@ public class Snake extends Application {
         gc.setFill(Color.WHITE);
         gc.fillText("Score: " + score, 10, 20);
 
+        gc.fillText("Time: " + timeDisplay, 100, 20);
+        
         if (gameOver) {
             gc.setFill(Color.RED);
             gc.fillText("GAME OVER", WIDTH / 2.0 - 40, HEIGHT / 2.0);
