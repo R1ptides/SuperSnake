@@ -29,6 +29,9 @@ public class Snake extends Application {
     
     // private long lastGrowTime = 0; // TEMPORARY - controls how often the snake grows
 
+    // NEW: screen manager to handle states (home, play, pause, game over)
+    private Screens screenManager = new Screens();
+
     @Override
     public void start(Stage stage) {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
@@ -47,6 +50,32 @@ public class Snake extends Application {
             mouseY = e.getY();
         });
 
+        // NEW: left-click starts the game (from home or after game over)
+        scene.setOnMouseClicked(e -> {
+            if (screenManager.isHome() || screenManager.isGameOver()) {
+                screenManager.setState(Screens.GameState.PLAYING);
+                resetGame();
+            }
+        });
+
+        // NEW: key controls for pause/play and end game
+        scene.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case SPACE -> {
+                    if (screenManager.isPlaying()) {
+                        screenManager.setState(Screens.GameState.PAUSED);
+                    } else if (screenManager.isPaused()) {
+                        screenManager.setState(Screens.GameState.PLAYING);
+                    }
+                }
+                case X -> {
+                    screenManager.setState(Screens.GameState.GAME_OVER);
+                    gameOver = true;
+                }
+                default -> {}
+            }
+        });
+
         stage.setTitle("Super Snake");
         stage.setScene(scene);
         stage.show();
@@ -55,16 +84,34 @@ public class Snake extends Application {
 
         new AnimationTimer() {
             public void handle(long now) {
-                if (!gameOver) {
+                // only update if the game is in PLAYING state
+                if (screenManager.isPlaying() && !gameOver) {
                     //update(now); // OLD: included timed growth, now replaced with update() below
                     update();
                     updateTimer();
                     checkFoodCollision();
                     checkCollisions();
                 }
+
+                // if snake dies during playing, switch to game over
+                if (gameOver && screenManager.isPlaying()) {
+                    screenManager.setState(Screens.GameState.GAME_OVER);
+                }
+
                 draw(gc);
             }
         }.start();
+    }
+
+    // NEW: reset game when restarting from home/game over
+    private void resetGame() {
+        score = 0;
+        gameOver = false;
+        body.clear();
+        body.add(new SnakeSegment(400, 300, 20));
+        food.respawn();
+        startTime = System.currentTimeMillis();
+        timeDisplay = "00:00";
     }
 
     private void updateTimer() {
@@ -142,7 +189,7 @@ public class Snake extends Application {
             double py = prev.getY();
             double cx = curr.getX();
             double cy = curr.getY();
-            //pythagorean theorem to calculate the trajectory of the snake based on the mouse's position
+            //pythagorean theorem to calculate the trajectory of each respective segment based on the position of the one before it
             double segmentDist = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
             
             if (segmentDist > SEGMENT_DISTANCE) {   //checks and ensures that the segments don't disconnect or deviate
@@ -153,6 +200,7 @@ public class Snake extends Application {
             }
         }
     }
+
     private void checkFoodCollision() {
         SnakeSegment head = body.get(0);
         double dx = head.getX() - food.getX();
@@ -198,21 +246,48 @@ public class Snake extends Application {
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, WIDTH, HEIGHT);
 
-        food.draw(gc);
-
-
-        for (SnakeSegment segment : body) {
-            segment.draw(gc);
+        // Home screen
+        if (screenManager.isHome()) {
+            gc.setFill(Color.LIMEGREEN);
+            gc.fillText("Welcome to Super Snake!", WIDTH / 2.0 - 80, HEIGHT / 2.0 - 20);
+            gc.setFill(Color.WHITE);
+            gc.fillText("Left click to play", WIDTH / 2.0 - 55, HEIGHT / 2.0 + 10);
+            gc.fillText("Press SPACE to pause/resume, X to end game", WIDTH / 2.0 - 130, HEIGHT / 2.0 + 40);
+            return;
         }
 
-        gc.setFill(Color.WHITE);
-        gc.fillText("Score: " + score, 10, 20);
+        // Gameplay screen
+        if (screenManager.isPlaying()) {
+            food.draw(gc);
+            for (SnakeSegment segment : body) {
+                segment.draw(gc);
+            }
 
-        gc.fillText("Time: " + timeDisplay, 100, 20);
-        
-        if (gameOver) {
+            gc.setFill(Color.WHITE);
+            gc.fillText("Score: " + score, 10, 20);
+            gc.fillText("Time: " + timeDisplay, 100, 20);
+        }
+
+        // Pause screen
+        if (screenManager.isPaused()) {
+            food.draw(gc);
+            for (SnakeSegment segment : body) {
+                segment.draw(gc);
+            }
+            gc.setFill(Color.YELLOW);
+            gc.fillText("PAUSED", WIDTH / 2.0 - 30, HEIGHT / 2.0);
+            gc.setFill(Color.WHITE);
+            gc.fillText("Press SPACE to resume", WIDTH / 2.0 - 70, HEIGHT / 2.0 + 25);
+        }
+
+        // Game over screen
+        if (screenManager.isGameOver()) {
             gc.setFill(Color.RED);
             gc.fillText("GAME OVER", WIDTH / 2.0 - 40, HEIGHT / 2.0);
+            gc.setFill(Color.WHITE);
+            gc.fillText("Final Score: " + score, WIDTH / 2.0 - 45, HEIGHT / 2.0 + 25);
+            gc.fillText("Time Elapsed: " + timeDisplay, WIDTH / 2.0 - 60, HEIGHT / 2.0 + 50);
+            gc.fillText("Click to return to home", WIDTH / 2.0 - 70, HEIGHT / 2.0 + 75);
         }
     }
 
